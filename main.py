@@ -1,6 +1,7 @@
 import os
 import binascii
 import evdev
+import logging
 from display import Display
 from logic import Logic
 from db import Database
@@ -55,6 +56,7 @@ scanner.grab()
 logic = Logic(display, db)
 
 input_buffer = ""
+logging.basicConfig(level=logging.DEBUG)
 
 while True:
     for event in scanner.read_loop():
