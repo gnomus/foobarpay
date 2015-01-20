@@ -1,83 +1,9 @@
 import os
 import binascii
 import evdev
-from time import sleep
-
-saldo = 10
-cart = 0
-
-class Display(object):
-    def __init__(self,path):
-        self.path = path
-
-    def setPos(self, posX,posY):
-        self.__sendCmd(b"\x06\x1B\x5B" + str.encode(str(posY)) + b"\x3B" + str.encode(str(posX)) + b"\x48")
-
-    def showRawMsg(self, msg):
-        self.__sendCmd(str.encode(msg))
-
-    def showWelcome(self):
-        self.clear()
-        self.setPos(6,1)
-        self.showRawMsg("Welcome to")
-        self.setPos(6,2)
-        self.showRawMsg("foobarpay!")
-
-    def showMsg(self, msg):
-        self.clear()
-        self.setPos(1,1)
-        self.showRawMsg(msg)
-
-    def showTwoMsgs(self, msg1, msg2):
-        self.clear()
-        self.setPos(1,1)
-        self.showRawMsg(msg1)
-        self.setPos(1,2)
-        self.showRawMsg(msg2)
-
-    def clear(self):
-        self.__sendCmd(b"\x1B\x5B\x32\x4A")
-
-    def __sendCmd(self, cmd):
-        msg = b"\x02\x00" + bytes([len(cmd)]) + cmd + bytes(29 - len(cmd))
-        dev = open(self.path, "wb")
-        dev.write(msg)
-        dev.close()
-
-class Logic(object):
-    def __init__(self, display):
-        # STATES:
-        # 0 - Idle
-        # 1 - Transaction Started
-        self.state = 0
-        self.display = display
-        self.display.showWelcome()
-
-    def handleScan(self, scan):
-        global saldo, cart
-        if scan.startswith("U-"): #User ID
-            if self.state == 0:
-                self.display.showTwoMsgs("Hello User", "S: {:+.2f}".format(saldo))
-                self.state = 1
-            else:
-                self.display.clear()
-                self.display.setPos(1,1)
-                saldo = saldo + cart
-                cart = 0
-                self.display.showTwoMsgs("Transaction", "completed")
-                sleep(3)
-                self.display.showWelcome()
-                self.state = 0
-        else: # Product ID
-            if self.state == 0:
-                self.display.showTwoMsgs("Error", "Scan UID first")
-                sleep(3)
-                self.display.showWelcome()
-            else:
-                cart = cart - 1
-                self.display.showTwoMsgs("Mate", "Cart: {:+.2f}".format(cart))
-
-
+from display import Display
+from logic import Logic
+from db import Database
 
 scancodes = {
     2: u'1',
@@ -122,14 +48,13 @@ scancodes = {
 
 
 
+db = Database("db.sqlite")
 display = Display("/dev/hidraw1")
-scanner = evdev.InputDevice("/dev/input/event17")
+scanner = evdev.InputDevice("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
 scanner.grab()
+logic = Logic(display, db)
+
 input_buffer = ""
-logic = Logic(display)
-
-
-
 
 while True:
     for event in scanner.read_loop():
