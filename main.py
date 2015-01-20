@@ -58,6 +58,7 @@ logic = Logic(display, db)
 input_buffer = ""
 logging.basicConfig(level=logging.DEBUG)
 
+logging.info("Welcome to foobarpay")
 while True:
     for event in scanner.read_loop():
         if event.type == evdev.ecodes.EV_KEY and event.value == 1:
