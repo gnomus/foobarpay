@@ -47,23 +47,25 @@ scancodes = {
     12: u'-'
 }
 
+def main():
+    logging.basicConfig(level=logging.DEBUG)
+    db = Database("db.sqlite")
+    display = Display("/dev/hidraw1")
+    scanner = evdev.InputDevice("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
+    scanner.grab()
+    logic = Logic(display, db)
 
+    input_buffer = ""
 
-db = Database("db.sqlite")
-display = Display("/dev/hidraw1")
-scanner = evdev.InputDevice("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
-scanner.grab()
-logic = Logic(display, db)
+    logging.info("Welcome to foobarpay")
+    while True:
+        for event in scanner.read_loop():
+            if event.type == evdev.ecodes.EV_KEY and event.value == 1:
+                if event.code == 28:
+                    logic.handleScan(input_buffer)
+                    input_buffer = ""
+                else:
+                    input_buffer += scancodes.get(event.code) or ""
 
-input_buffer = ""
-logging.basicConfig(level=logging.DEBUG)
-
-logging.info("Welcome to foobarpay")
-while True:
-    for event in scanner.read_loop():
-        if event.type == evdev.ecodes.EV_KEY and event.value == 1:
-            if event.code == 28:
-                logic.handleScan(input_buffer)
-                input_buffer = ""
-            else:
-                input_buffer += scancodes.get(event.code) or ""
+if __name__ == "__main__":
+    main()

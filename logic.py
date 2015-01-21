@@ -1,3 +1,4 @@
+import logging
 from time import sleep
 from customer import Customer
 
@@ -7,34 +8,42 @@ class Logic(object):
         # STATES:
         # 0 - Idle
         # 1 - Transaction Started
-        self.state = 0
         self.display = display
-        self.display.showWelcome()
         self.db = db
-        self.customer = None
+        self.reset()
+
+    def reset(self):
+        logging.debug("Resetting logic")
+        self.state = 0 #XXX: fucking enum me
         self.cart = 0
+        self.customer = None
+        self.display.showWelcome()
 
     def transactionStart(self, cid):
-        self.customer = Customer(int(cid[2:]))
+        logging.info("Starting transaction")
+        self.customer = Customer(cid)
         self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f}".format(self.customer.saldo/100))
         self.state = 1
         self.cart = 0
 
     def transactionEnd(self):
+        logging.info("Completing transaction")
         self.display.clear()
         self.display.setPos(1,1)
         self.customer.saldo = self.customer.saldo + self.cart
         self.display.showTwoMsgs("Transaction", "completed")
         sleep(3)
-        self.display.showWelcome()
-        self.state = 0
-        self.customer = None
+        self.reset()
 
     def handleScan(self, scan):
         if scan.startswith("U-"): #User ID
-            if self.state == 0: #Start Transaction
-                self.transactionStart(scan)
-            else: #End Transaction
+            cid = int(scan[2:])
+            if self.state == 0:
+                self.transactionStart(cid)
+            elif cid != self.customer.cid:
+                self.reset()
+                self.transactionStart(cid)
+            else:
                 self.transactionEnd()
         else: # Product ID
             if self.state == 0: # Product without active transaction
