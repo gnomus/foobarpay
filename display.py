@@ -1,8 +1,8 @@
 class Display(object):
-    def __init__(self,path):
+    def __init__(self, path):
         self.path = path
 
-    def setPos(self, posX,posY):
+    def setPos(self, posX, posY):
         self.__sendCmd(b"\x06\x1B\x5B" + str.encode(str(posY)) + b"\x3B" + str.encode(str(posX)) + b"\x48")
 
     def showRawMsg(self, msg):
