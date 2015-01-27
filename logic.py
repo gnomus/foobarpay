@@ -1,20 +1,18 @@
 import logging
 from time import sleep
 from customer import Customer
+from enum import Enum
 
 
 class Logic(object):
     def __init__(self, display, db):
-        # STATES:
-        # 0 - Idle
-        # 1 - Transaction Started
         self.display = display
         self.db = db
         self.reset()
 
     def reset(self):
         logging.debug("Resetting logic")
-        self.state = 0 #XXX: fucking enum me
+        self.state = State.Idle
         self.cart = 0
         self.customer = None
         self.display.showWelcome()
@@ -23,7 +21,7 @@ class Logic(object):
         logging.info("Starting transaction")
         self.customer = Customer(cid)
         self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f}".format(self.customer.saldo/100))
-        self.state = 1
+        self.state = State.Started
         self.cart = 0
 
     def transactionEnd(self):
@@ -38,7 +36,7 @@ class Logic(object):
     def handleScan(self, scan):
         if scan.startswith("U-"): #User ID
             cid = int(scan[2:])
-            if self.state == 0:
+            if State.Idle == self.state:
                 self.transactionStart(cid)
             elif cid != self.customer.cid:
                 self.reset()
@@ -46,7 +44,7 @@ class Logic(object):
             else:
                 self.transactionEnd()
         else: # Product ID
-            if self.state == 0: # Product without active transaction
+            if State.Idle == self.state: # Product without active transaction
                 self.display.showTwoMsgs("Error", "Scan UID first")
                 sleep(3)
                 self.display.showWelcome()
@@ -59,3 +57,8 @@ class Logic(object):
                 else:
                     self.cart -= product["Price"]
                     self.display.showTwoMsgs("{}: {:.2f}".format(product["Name"], product["Price"]/100), "Cart: {:+.2f}".format(self.cart/100))
+
+
+class State(Enum):
+    Idle = 0
+    Started = 1
