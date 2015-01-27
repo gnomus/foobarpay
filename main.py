@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 import os
 import binascii
-import evdev
 import logging
 from display import Display
 from logic import Logic
 from db import Database
-from scanner import scancodes
+from scanner import scancodes, Scanner
+import evdev
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
     db = Database("db.sqlite")
     display = Display("/dev/hidraw1")
-    scanner = evdev.InputDevice("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
-    scanner.grab()
+    scanner = Scanner("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
     logic = Logic(display, db)
-
     input_buffer = ""
 
     logging.info("Welcome to foobarpay")

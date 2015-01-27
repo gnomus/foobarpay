@@ -1,4 +1,4 @@
-
+from evdev import InputDevice
 
 scancodes = {
     2: u'1',
@@ -40,3 +40,12 @@ scancodes = {
     44: u'Z',
     12: u'-'
 }
+
+
+class Scanner(object):
+    def __init__(self, device):
+        self.device = InputDevice(device)
+        self.device.grab()
+
+    def read_loop(self):
+        return self.device.read_loop()
