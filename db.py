@@ -12,7 +12,5 @@ class Database(object):
             product = {"Name": "Mate", "Price": 150}
         elif pid == "4260031874056":
             product = {"Name": "Flora", "Price": 150}
-        else:
-            product = None
         logging.debug("Getting product by id {} -> {}".format(pid, product))
         return product
