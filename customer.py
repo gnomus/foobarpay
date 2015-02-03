@@ -15,5 +15,5 @@ class Customer(object):
         self.saldo += amount
 
     def getName(self):
-        return self.name or self.cid
+        return self.name or str(self.cid)
 

@@ -53,7 +53,7 @@ class Logic(object):
                 if product is None:
                     self.display.showTwoMsgs("Error", "Unknown product")
                     sleep(2)
-                    self.display.showTwoMsgs("Hello User", "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
+                    self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
                 else:
                     self.cart -= product["Price"]
                     self.display.showTwoMsgs("{}: {:.2f}".format(product["Name"], product["Price"]/100), "Cart: {:+.2f}".format(self.cart/100))
