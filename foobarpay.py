@@ -24,8 +24,8 @@ def main(args):
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
     db = Database('sqlite:///foobarpay.sqlite', debug=args.debug_sql)
-    display = Display("/dev/hidraw1")
-    scanner = Scanner("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
+    display = Display(args.display)
+    scanner = Scanner(args.scanner)
     logic = Logic(display, db)
 
     init_products(db);
@@ -43,8 +43,11 @@ def main(args):
                     input_buffer += scancodes.get(event.code) or ""
 
 if __name__ == "__main__":
+    default_scanner = '/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd'
     parser = ArgumentParser()
-    parser.add_argument('--debug', dest='debug', action='store_true', help='enable general debug messages')
-    parser.add_argument('--debug-sql', dest='debug_sql', action='store_true', help='enable sql debug messages')
+    parser.add_argument('-v', '--debug', dest='debug', action='store_true', help='general debug messages')
+    parser.add_argument('--debug-sql', dest='debug_sql', action='store_true', help='sql debug messages')
+    parser.add_argument('--display', dest='display', default='/dev/hidraw1', help='specify display device')
+    parser.add_argument('--scanner', dest='scanner', default=default_scanner, help='specify scanner device')
     parser.set_defaults(debug=False, debug_sql=False)
     main(parser.parse_args())
