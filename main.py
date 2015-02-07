@@ -9,7 +9,7 @@ from foobarpay.db import Database
 from foobarpay.display import Display
 from foobarpay.scanner import scancodes, Scanner
 from foobarpay.logic import Logic
-from foobarpay.product import Product
+from foobarpay.model.product import Product
 
 
 def init_products(db):

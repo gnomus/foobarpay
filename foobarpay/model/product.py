@@ -1,4 +1,4 @@
-from .db import Base
+from foobarpay.db import Base
 from sqlalchemy import Column, Integer, String
 
 

@@ -1,5 +1,5 @@
-from .customer import Customer
-from .product import Product
+from foobarpay.model.customer import Customer
+from foobarpay.model.product import Product
 
 import logging
 from time import sleep
