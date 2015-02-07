@@ -1,6 +1,7 @@
+from .customer import Customer
+
 import logging
 from time import sleep
-from customer import Customer
 from enum import Enum
 
 
@@ -19,8 +20,10 @@ class Logic(object):
 
     def transactionStart(self, cid):
         logging.info("Starting transaction")
-        self.customer = Customer(cid)
-        self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f}".format(self.customer.saldo/100))
+        self.customer = self.db.get_or_create(Customer, cid=cid)
+        logging.debug("Name: {}".format(self.customer.getName()))
+        logging.debug("Saldo: {}".format(self.customer.getSaldo()))
+        self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f}".format(self.customer.getSaldo()/100))
         self.state = State.Started
         self.cart = 0
 

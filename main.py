@@ -2,16 +2,17 @@
 import os
 import binascii
 import logging
-from display import Display
-from logic import Logic
-from db import Database
-from scanner import scancodes, Scanner
 import evdev
+from sqlalchemy import create_engine
 
+from foobarpay.display import Display
+from foobarpay.logic import Logic
+from foobarpay.db import Database
+from foobarpay.scanner import scancodes, Scanner
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
-    db = Database("db.sqlite")
+    db = Database('sqlite:///:memory:')
     display = Display("/dev/hidraw1")
     scanner = Scanner("/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd")
     logic = Logic(display, db)
