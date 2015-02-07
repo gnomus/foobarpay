@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import binascii
 import logging
-import evdev
+from sys import exit
+from evdev import ecodes
+from signal import signal, SIGINT
 from sqlalchemy import create_engine
 
 from foobarpay.db import Database
@@ -28,10 +29,11 @@ def main():
     init_products(db);
 
     logging.info("Welcome to foobarpay")
+    signal(SIGINT, lambda s, f: exit(0))
     input_buffer = ""
     while True:
         for event in scanner.read_loop():
-            if event.type == evdev.ecodes.EV_KEY and event.value == 1:
+            if event.type == ecodes.EV_KEY and event.value == 1:
                 if event.code == 28:
                     logic.handleScan(input_buffer)
                     input_buffer = ""
