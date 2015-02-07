@@ -1,4 +1,5 @@
 from .customer import Customer
+from .product import Product
 
 import logging
 from time import sleep
@@ -52,14 +53,15 @@ class Logic(object):
                 sleep(3)
                 self.display.showWelcome()
             else: # Add product to transaction
-                product = self.db.getProduct(scan)
+                pid = int(scan)
+                product = self.db.get(Product, pid=pid)
                 if product is None:
                     self.display.showTwoMsgs("Error", "Unknown product")
                     sleep(2)
                     self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
                 else:
-                    self.cart -= product["Price"]
-                    self.display.showTwoMsgs("{}: {:.2f}".format(product["Name"], product["Price"]/100), "Cart: {:+.2f}".format(self.cart/100))
+                    self.cart -= product.price
+                    self.display.showTwoMsgs("{}: {:.2f}".format(product.name, product.price/100), "Cart: {:+.2f}".format(self.cart/100))
 
 
 class State(Enum):
