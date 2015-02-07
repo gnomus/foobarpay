@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 from sqlalchemy.ext.declarative import declarative_base
-import logging
 
 
 Base = declarative_base()
