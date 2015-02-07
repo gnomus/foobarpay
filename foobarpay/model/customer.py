@@ -6,7 +6,7 @@ class Customer(Base):
     __tablename__ = 'customer'
     cid = Column(Integer, primary_key=True)
     name = Column(String)
-    saldo = Column(Integer, default=0)
+    saldo = Column(Integer, default=0, nullable=False)
 
     def __init__(self, cid=0, saldo=0):
         self.cid = cid
