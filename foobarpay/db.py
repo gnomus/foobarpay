@@ -26,3 +26,9 @@ class Database(object):
         instance = model(**params)
         self.session.add(instance)
         return instance
+
+    def commit(self):
+        self.session.commit()
+
+    def flush(self):
+        self.session.flush()

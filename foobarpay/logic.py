@@ -32,7 +32,8 @@ class Logic(object):
         logging.info("Completing transaction")
         self.display.clear()
         self.display.setPos(1,1)
-        self.customer.saldo = self.customer.saldo + self.cart
+        self.customer.modifySaldo(self.cart)
+        self.db.commit()
         self.display.showTwoMsgs("Transaction", "completed")
         sleep(3)
         self.reset()
