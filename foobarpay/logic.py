@@ -39,30 +39,32 @@ class Logic(object):
         self.reset()
 
     def handleScan(self, scan):
-        if scan.startswith("U-"): #User ID
-            cid = int(scan[2:])
-            if State.Idle == self.state:
-                self.transactionStart(cid)
-            elif cid != self.customer.cid:
-                self.reset()
-                self.transactionStart(cid)
-            else:
-                self.transactionEnd()
-        else: # Product ID
-            if State.Idle == self.state: # Product without active transaction
-                self.display.showTwoMsgs("Error", "Scan UID first")
-                sleep(3)
-                self.display.showWelcome()
-            else: # Add product to transaction
-                pid = int(scan)
-                product = self.db.get(Product, pid=pid)
-                if product is None:
-                    self.display.showTwoMsgs("Error", "Unknown product")
-                    sleep(2)
-                    self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
+        try:
+            if scan.startswith("U-"): #User ID
+                cid = int(scan[2:])
+                if State.Idle == self.state:
+                    self.transactionStart(cid)
+                elif cid != self.customer.cid:
+                    self.reset()
+                    self.transactionStart(cid)
                 else:
-                    self.cart -= product.price
-                    self.display.showTwoMsgs("{}: {:.2f}".format(product.name, product.price/100), "Cart: {:+.2f}".format(self.cart/100))
+                    self.transactionEnd()
+            else: # Product ID
+                if self.state == State.Idle: # Product without active transaction
+                    self.display.showTwoMsgs("Error", "Scan UID first")
+                    sleep(3)
+                    self.display.showWelcome()
+                else: # Add product to transaction
+                    pid = int(scan)
+                    product = self.db.get(Product, pid=pid)
+                    if product is None:
+                        self.display.showTwoMsgs("Error", "Unknown product")
+                        sleep(2)
+                        self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
+                    else:
+                        self.cart -= product.price
+                        self.display.showTwoMsgs("{}: {:.2f}".format(product.name, product.price/100), "Cart: {:+.2f}".format(self.cart/100))
+        except ValueError: pass
 
 
 class State(Enum):
