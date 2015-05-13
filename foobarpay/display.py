@@ -1,6 +1,7 @@
 class Display(object):
     def __init__(self, path):
         self.path = path
+        self.dev = open(self.path, "wb")
 
     def setPos(self, posX, posY):
         self.__sendCmd(b"\x06\x1B\x5B" + str.encode(str(posY)) + b"\x3B" + str.encode(str(posX)) + b"\x48")
@@ -32,6 +33,5 @@ class Display(object):
 
     def __sendCmd(self, cmd):
         msg = b"\x02\x00" + bytes([len(cmd)]) + cmd + bytes(29 - len(cmd))
-        dev = open(self.path, "wb")
-        dev.write(msg)
-        dev.close()
+        self.dev.write(msg)
+        self.dev.flush()
