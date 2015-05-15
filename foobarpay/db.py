@@ -2,7 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 Base = declarative_base()
 
@@ -14,7 +15,7 @@ class Database(object):
         Base.metadata.create_all(self.engine)
 
     def get(self, model, defaults=None, **kwargs):
-        return self.session.query(model).filter_by(**kwargs).first()
+       return self.session.query(model).filter_by(**kwargs).first()
 
     def get_or_create(self, model, defaults=None, **kwargs):
         instance = self.get(model, defaults, **kwargs)
@@ -24,6 +25,7 @@ class Database(object):
         params.update(defaults or {})
         instance = model(**params)
         self.session.add(instance)
+        self.session.flush()
         return instance
 
     def commit(self):

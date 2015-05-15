@@ -5,68 +5,74 @@ import logging
 from time import sleep
 from enum import Enum
 
-
 class Logic(object):
-    def __init__(self, display, db):
+    class State(Enum):
+        Idle = 0
+        Started = 1
+
+    USER_ID_PREFIX = 'U-'
+
+    def __init__(self, display, database):
         self.display = display
-        self.db = db
+        self.database = database
         self.reset()
 
     def reset(self):
         logging.debug("Resetting logic")
-        self.state = State.Idle
+        self.state = self.State.Idle
         self.cart = 0
         self.customer = None
-        self.display.showWelcome()
+        self.display.show_welcome()
 
-    def transactionStart(self, cid):
+    def transaction_start(self, customer_id):
         logging.info("Starting transaction")
-        self.customer = self.db.get_or_create(Customer, cid=cid)
-        logging.debug("Name: {}".format(self.customer.getName()))
-        logging.debug("Saldo: {}".format(self.customer.getSaldo()))
-        self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f}".format(self.customer.getSaldo()/100))
-        self.state = State.Started
+        self.customer = self.database.get_or_create(Customer, id=customer_id)
+        logging.debug("Name: {}".format(self.customer.name))
+        logging.debug("Saldo: {}".format(self.customer.saldo))
+        self.display.show_two_messages("Hello {}".format(self.customer.name), "S: {:+.2f}".format(self.customer.saldo/100))
+        self.state = self.State.Started
         self.cart = 0
 
-    def transactionEnd(self):
+    def transaction_end(self):
         logging.info("Completing transaction")
         self.display.clear()
-        self.display.setPos(1,1)
-        self.customer.modifySaldo(self.cart)
-        self.db.commit()
-        self.display.showTwoMsgs("Transaction", "completed")
+        self.display.set_position(1,1)
+        self.customer.modify_saldo(self.cart)
+        self.database.commit()
+        self.display.show_two_messages("Transaction", "completed")
         sleep(3)
         self.reset()
 
-    def handleScan(self, scan):
+    def handle_scanned_text(self, scanned_text):
         try:
-            if scan.startswith("U-"): #User ID
-                cid = int(scan[2:])
-                if State.Idle == self.state:
-                    self.transactionStart(cid)
-                elif cid != self.customer.cid:
+            if scanned_text.startswith(self.USER_ID_PREFIX):
+                customer_id = int(scanned_text[2:])
+                if self.state == self.State.Idle:
+                    self.transaction_start(customer_id)
+                elif customer_id != self.customer.id:
                     self.reset()
-                    self.transactionStart(cid)
+                    self.transaction_start(customer_id)
                 else:
-                    self.transactionEnd()
+                    self.transaction_end()
             else: # Product ID
-                if self.state == State.Idle: # Product without active transaction
-                    self.display.showTwoMsgs("Error", "Scan UID first")
+                if self.state == self.State.Idle: # Product without active transaction
+                    self.display.show_two_messages("Error", "Scan UID first")
                     sleep(3)
-                    self.display.showWelcome()
+                    self.display.show_welcome()
                 else: # Add product to transaction
-                    pid = int(scan)
-                    product = self.db.get(Product, pid=pid)
+                    product_id = int(scanned_text)
+                    product = self.database.get(Product, id=product_id)
                     if product is None:
-                        self.display.showTwoMsgs("Error", "Unknown product")
+                        self.display.show_two_messages("Error", "Unknown product")
                         sleep(2)
-                        self.display.showTwoMsgs("Hello {}".format(self.customer.getName()), "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo/100, self.cart/100))
+                        self.display.show_two_messages(
+                                "Hello {}".format(self.customer.name[:12]),
+                                "S: {:+.2f} / C: {:+.2f}".format(self.customer.saldo / 100, self.cart / 100)
+                        )
                     else:
                         self.cart -= product.price
-                        self.display.showTwoMsgs("{}: {:.2f}".format(product.name, product.price/100), "Cart: {:+.2f}".format(self.cart/100))
+                        self.display.show_two_messages(
+                                "{}: {:.2f}".format(product.name, product.price/100),
+                                "Cart: {:+.2f}".format(self.cart/100)
+                        )
         except ValueError: pass
-
-
-class State(Enum):
-    Idle = 0
-    Started = 1

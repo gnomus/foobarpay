@@ -1,22 +1,23 @@
 from foobarpay.db import Base
 from sqlalchemy import Column, Integer, String
 
-
 class Customer(Base):
     __tablename__ = 'customer'
-    cid = Column(Integer, primary_key=True)
-    name = Column(String)
+    id = Column(Integer, primary_key=True)
+    _name = Column("name", String)
     saldo = Column(Integer, default=0, nullable=False)
 
-    def __init__(self, cid=0, saldo=0):
-        self.cid = cid
+    def __init__(self, id=0, saldo=0):
+        self.id = id
         self.saldo = saldo
 
-    def modifySaldo(self, amount):
+    def modify_saldo(self, amount):
         self.saldo += amount
 
-    def getName(self):
-        return self.name or str(self.cid)
+    @property
+    def name(self):
+        return self._name or str(self.id)
 
-    def getSaldo(self):
-        return self.saldo
+    @name.setter
+    def name(self, value):
+        self._name = value

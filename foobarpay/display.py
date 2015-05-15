@@ -1,37 +1,37 @@
 class Display(object):
     def __init__(self, path):
         self.path = path
-        self.dev = open(self.path, "wb")
+        self.device = open(self.path, "wb")
 
-    def setPos(self, posX, posY):
-        self.__sendCmd(b"\x06\x1B\x5B" + str.encode(str(posY)) + b"\x3B" + str.encode(str(posX)) + b"\x48")
+    def set_position(self, pos_x, pos_y):
+        self.__send_command(b"\x06\x1B\x5B" + str.encode(str(pos_y)) + b"\x3B" + str.encode(str(pos_x)) + b"\x48")
 
-    def showRawMsg(self, msg):
-        self.__sendCmd(str.encode(msg))
+    def show_raw_message(self, message):
+        self.__send_command(str.encode(message))
 
-    def showWelcome(self):
+    def show_welcome(self):
         self.clear()
-        self.setPos(6,1)
-        self.showRawMsg("Welcome to")
-        self.setPos(6,2)
-        self.showRawMsg("foobarpay!")
+        self.set_position(6, 1)
+        self.show_raw_message("Welcome to")
+        self.set_position(6, 2)
+        self.show_raw_message("foobarpay!")
 
-    def showMsg(self, msg):
+    def show_message(self, message):
         self.clear()
-        self.setPos(1,1)
-        self.showRawMsg(msg)
+        self.set_position(1, 1)
+        self.show_raw_message(message)
 
-    def showTwoMsgs(self, msg1, msg2):
+    def show_two_messages(self, message1, message2):
         self.clear()
-        self.setPos(1,1)
-        self.showRawMsg(msg1)
-        self.setPos(1,2)
-        self.showRawMsg(msg2)
+        self.set_position(1, 1)
+        self.show_raw_message(message1)
+        self.set_position(1, 2)
+        self.show_raw_message(message2)
 
     def clear(self):
-        self.__sendCmd(b"\x1B\x5B\x32\x4A")
+        self.__send_command(b"\x1B\x5B\x32\x4A")
 
-    def __sendCmd(self, cmd):
-        msg = b"\x02\x00" + bytes([len(cmd)]) + cmd + bytes(29 - len(cmd))
-        self.dev.write(msg)
-        self.dev.flush()
+    def __send_command(self, command):
+        message = b"\x02\x00" + bytes([len(command)]) + command + bytes(29 - len(command))
+        self.device.write(message)
+        self.device.flush()
