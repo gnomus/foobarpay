@@ -4,10 +4,10 @@ class Display(object):
         self.device = open(self.path, "wb")
 
     def set_position(self, pos_x, pos_y):
-        self.__send_command(b"\x06\x1B\x5B" + str.encode(str(pos_y)) + b"\x3B" + str.encode(str(pos_x)) + b"\x48")
+        self.__send_command__(b"\x06\x1B\x5B" + str.encode(str(pos_y)) + b"\x3B" + str.encode(str(pos_x)) + b"\x48")
 
     def show_raw_message(self, message):
-        self.__send_command(str.encode(message))
+        self.__send_command__(str.encode(message))
 
     def show_welcome(self):
         self.clear()
@@ -29,9 +29,9 @@ class Display(object):
         self.show_raw_message(message2)
 
     def clear(self):
-        self.__send_command(b"\x1B\x5B\x32\x4A")
+        self.__send_command__(b"\x1B\x5B\x32\x4A")
 
-    def __send_command(self, command):
+    def __send_command__(self, command):
         message = b"\x02\x00" + bytes([len(command)]) + command + bytes(29 - len(command))
         self.device.write(message)
         self.device.flush()
