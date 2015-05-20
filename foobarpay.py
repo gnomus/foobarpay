@@ -2,14 +2,13 @@
 
 import logging
 from sys import exit
-from evdev import ecodes
 from signal import signal, SIGINT
 from sqlalchemy import create_engine
 from argparse import ArgumentParser
 
 from foobarpay.db import Database
 from foobarpay.display import Display
-from foobarpay.scanner import scancodes, Scanner
+from foobarpay.scanner import EvdevScanner, FifoScanner
 from foobarpay.logic import Logic
 from foobarpay.model.product import Product
 
@@ -23,7 +22,10 @@ class FooBarPay:
 
         self.database = Database(cli_arguments.database, debug=cli_arguments.debug_sql)
         self.display = Display(cli_arguments.display)
-        self.scanner = Scanner(cli_arguments.scanner)
+        if cli_arguments.scanner_driver == "fifo":
+            self.scanner = FifoScanner(cli_arguments.scanner)
+        else:
+            self.scanner = EvdevScanner(cli_arguments.scanner)
         self.initialize_products()
         self.logic = Logic(self.display, self.database)
 
@@ -35,15 +37,8 @@ class FooBarPay:
     def start(self):
         logging.info("Welcome to foobarpay")
         signal(SIGINT, lambda s, f: exit(0))
-        input_buffer = ""
         while True:
-            for event in self.scanner.read_loop():
-                if event.type == ecodes.EV_KEY and event.value == 1:
-                    if event.code == 28:
-                        self.logic.handle_scanned_text(input_buffer)
-                        input_buffer = ""
-                    else:
-                        input_buffer += scancodes.get(event.code) or ""
+            self.logic.handle_scanned_text(self.scanner.read())
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -51,6 +46,7 @@ if __name__ == "__main__":
     parser.add_argument('--debug-sql', dest='debug_sql', action='store_true', help='sql debug messages')
     parser.add_argument('--display', dest='display', default=FooBarPay.DEFAULT_DISPLAY, help='specify display device')
     parser.add_argument('--scanner', dest='scanner', default=FooBarPay.DEFAULT_SCANNER, help='specify scanner device')
+    parser.add_argument('--scanner-driver', dest='scanner_driver', choices=['evdev', 'fifo'], default='evdev', help='specify scanner driver')
     parser.add_argument('--db', dest='database', default=FooBarPay.DEFAULT_DATABASE, help='specify database file')
     parser.set_defaults(debug=False, debug_sql=False)
 
