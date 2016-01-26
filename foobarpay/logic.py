@@ -11,7 +11,7 @@ class Logic(object):
         Started = 1
 
     USER_ID_PREFIX = 'U-'
-    LOAD_PREFIX = 'L-'
+    LOAD_PREFIX = '980'
 
     def __init__(self, display, database):
         self.display = display
@@ -61,7 +61,7 @@ class Logic(object):
                     sleep(3)
                     self.display.show_welcome()
                 else: # Add credit loading to transaction
-                    load_amount = int(scanned_text[2:])
+                    load_amount = int(scanned_text[3:12])
                     self.cart += load_amount
                     self.display.show_two_messages(
                             "Credits loaded: {:.2f}".format(load_amount/100),
