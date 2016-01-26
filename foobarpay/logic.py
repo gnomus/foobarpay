@@ -11,6 +11,7 @@ class Logic(object):
         Started = 1
 
     USER_ID_PREFIX = 'U-'
+    LOAD_PREFIX = 'L-'
 
     def __init__(self, display, database):
         self.display = display
@@ -54,6 +55,18 @@ class Logic(object):
                     self.transaction_start(customer_id)
                 else:
                     self.transaction_end()
+            if scanned_text.startswith(self.LOAD_PREFIX):
+                if self.state == self.State.Idle: # Product without active transaction
+                    self.display.show_two_messages("Error", "Scan UID first")
+                    sleep(3)
+                    self.display.show_welcome()
+                else: # Add credit loading to transaction
+                    load_amount = int(scanned_text[2:])
+                    self.cart += load_amount
+                    self.display.show_two_messages(
+                            "Credits loaded: {:.2f}".format(load_amount/100),
+                            "Cart: {:+.2f}".format(self.cart/100)
+                    )
             else: # Product ID
                 if self.state == self.State.Idle: # Product without active transaction
                     self.display.show_two_messages("Error", "Scan UID first")
