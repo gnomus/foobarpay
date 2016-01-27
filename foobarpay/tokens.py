@@ -28,7 +28,7 @@ class TokenGenerator(object):
         return base64.encodestring(f.getvalue()).decode('utf-8')
 
     def generate(self):
-        with open('resources/customer_tokens_template.svg') as f:
+        with open('misc/customer_tokens_template.svg') as f:
             t = Template(f.read())
         with open('customer_tokens_%i.pdf' % time(), 'wb') as f:
             f.write(svg2pdf(t.render(make_barcode=self.make_barcode)))
