@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import logging
 from sys import exit
@@ -11,6 +11,7 @@ from foobarpay.display import Display
 from foobarpay.scanner import EvdevScanner, FifoScanner
 from foobarpay.logic import Logic
 from foobarpay.model.product import Product
+from foobarpay.tokens import TokenGenerator
 
 class FooBarPay:
     DEFAULT_SCANNER  = '/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd'
@@ -48,6 +49,12 @@ if __name__ == "__main__":
     parser.add_argument('--scanner', dest='scanner', default=FooBarPay.DEFAULT_SCANNER, help='specify scanner device')
     parser.add_argument('--scanner-driver', dest='scanner_driver', choices=['evdev', 'fifo'], default='evdev', help='specify scanner driver')
     parser.add_argument('--db', dest='database', default=FooBarPay.DEFAULT_DATABASE, help='specify database file')
+    parser.add_argument('--gen-tokens', dest='gen_tokens', action='store_true', help='generate customer tokens')
     parser.set_defaults(debug=False, debug_sql=False)
 
-    FooBarPay(parser.parse_args()).start()
+    args = parser.parse_args()
+
+    if args.gen_tokens:
+        TokenGenerator(Database(args.database, debug=args.debug_sql)).generate()
+    else:
+        FooBarPay(args).start()

@@ -10,7 +10,7 @@ class Logic(object):
         Idle = 0
         Started = 1
 
-    USER_ID_PREFIX = 'U-'
+    USER_ID_PREFIX = '999'
     LOAD_PREFIX = '980'
 
     def __init__(self, display, database):
