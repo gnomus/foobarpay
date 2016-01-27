@@ -47,7 +47,7 @@ class Logic(object):
     def handle_scanned_text(self, scanned_text):
         try:
             if scanned_text.startswith(self.USER_ID_PREFIX):
-                customer_id = int(scanned_text[2:])
+                customer_id = int(scanned_text[len(self.USER_ID_PREFIX):])
                 if self.state == self.State.Idle:
                     self.transaction_start(customer_id)
                 elif customer_id != self.customer.id:
@@ -61,7 +61,7 @@ class Logic(object):
                     sleep(3)
                     self.display.show_welcome()
                 else: # Add credit loading to transaction
-                    load_amount = int(scanned_text[3:12])
+                    load_amount = int(scanned_text[len(self.LOAD_PREFIX):12])
                     self.cart += load_amount
                     self.display.show_two_messages(
                             "Credits loaded: {:.2f}".format(load_amount/100),
