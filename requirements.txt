@@ -1,3 +1,6 @@
 evdev>=0.5.0
 libusb1>=1.4.1
 SQLAlchemy>=1.0.11
+CairoSVG>=1.0.19
+Jinja2>=2.8
+pyBarcode>=0.7
