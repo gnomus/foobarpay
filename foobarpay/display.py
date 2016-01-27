@@ -1,4 +1,4 @@
-class Display(object):
+class HIDrawDisplay(object):
     def __init__(self, path):
         self.path = path
         self.device = open(self.path, "wb")
@@ -34,4 +34,15 @@ class Display(object):
     def __send_command__(self, command):
         message = b"\x02\x00" + bytes([len(command)]) + command + bytes(29 - len(command))
         self.device.write(message)
+        self.device.flush()
+
+class FifoDisplay(HIDrawDisplay):
+    def set_position(self, pos_x, pos_y):
+        self.__send_command__(b"\n" + b" " * pos_x)
+
+    def clear(self):
+        self.__send_command__(b"\n")
+
+    def __send_command__(self, command):
+        self.device.write(bytes(command))
         self.device.flush()

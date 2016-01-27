@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from argparse import ArgumentParser
 
 from foobarpay.db import Database
-from foobarpay.display import Display
+from foobarpay.display import HIDrawDisplay, FifoDisplay
 from foobarpay.scanner import EvdevScanner, FifoScanner
 from foobarpay.logic import Logic
 from foobarpay.model.product import Product
@@ -22,7 +22,10 @@ class FooBarPay:
         logging.basicConfig(level=logging.DEBUG if cli_arguments.debug else logging.INFO)
 
         self.database = Database(cli_arguments.database, debug=cli_arguments.debug_sql)
-        self.display = Display(cli_arguments.display)
+        if cli_arguments.display_driver == "fifo":
+            self.display = FifoDisplay(cli_arguments.display)
+        else:
+            self.display = HIDrawDisplay(cli_arguments.display)
         if cli_arguments.scanner_driver == "fifo":
             self.scanner = FifoScanner(cli_arguments.scanner)
         else:
@@ -46,6 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--debug', dest='debug', action='store_true', help='general debug messages')
     parser.add_argument('--debug-sql', dest='debug_sql', action='store_true', help='sql debug messages')
     parser.add_argument('--display', dest='display', default=FooBarPay.DEFAULT_DISPLAY, help='specify display device')
+    parser.add_argument('--display-driver', dest='display_driver', choices=['hidraw', 'fifo'], default='hidraw', help='specify display driver')
     parser.add_argument('--scanner', dest='scanner', default=FooBarPay.DEFAULT_SCANNER, help='specify scanner device')
     parser.add_argument('--scanner-driver', dest='scanner_driver', choices=['evdev', 'fifo'], default='evdev', help='specify scanner driver')
     parser.add_argument('--db', dest='database', default=FooBarPay.DEFAULT_DATABASE, help='specify database file')

@@ -55,7 +55,7 @@ class Logic(object):
                     self.transaction_start(customer_id)
                 else:
                     self.transaction_end()
-            if scanned_text.startswith(self.LOAD_PREFIX):
+            elif scanned_text.startswith(self.LOAD_PREFIX):
                 if self.state == self.State.Idle: # Product without active transaction
                     self.display.show_two_messages("Error", "Scan UID first")
                     sleep(3)
