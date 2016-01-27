@@ -22,7 +22,7 @@ class TokenGenerator(object):
                 self.db.get_or_create(Customer, id=id)
                 self.db.commit()
                 break
-        ean = EAN13(Logic.USER_ID_PREFIX + str(id).zfill(9))
+        ean = EAN13("{}{}".format(Logic.USER_ID_PREFIX, str(id).zfill(9)))
         f = BytesIO()
         ean.write(f, {'write_text': False})
         return base64.encodestring(f.getvalue()).decode('utf-8')
@@ -30,5 +30,5 @@ class TokenGenerator(object):
     def generate(self):
         with open('resource/customer_tokens_template.svg') as f:
             t = Template(f.read())
-        with open('customer_tokens_%i.pdf' % time(), 'wb') as f:
+        with open('customer_tokens_{}.pdf'.format(time()), 'wb') as f:
             f.write(svg2pdf(t.render(make_barcode=self.make_barcode)))
