@@ -34,9 +34,24 @@ class FooBarPay:
         self.logic = Logic(self.display, self.database)
 
     def initialize_products(self):
-        self.database.get_or_create(Product, id=4100060009503, name="Wasser", price=100)
-        self.database.get_or_create(Product, id=4029764001807, name="Mate")
-        self.database.get_or_create(Product, id=4260031874056, name="Flora")
+        self.database.get_or_create(Product, id=4100060009503, name="Extaler Mineralquell", price=100)
+        self.database.get_or_create(Product, id=42265832, name="Werretaler Aqua to go", price=100)
+        self.database.get_or_create(Product, id=4029764001807, name="Club Mate")
+        self.database.get_or_create(Product, id=4260031874056, name="Flora Power")
+        self.database.get_or_create(Product, id=4260401930429, name="1337 Mate")
+        self.database.get_or_create(Product, id=4066600603405, name="Paulaner Spezi")
+        self.database.get_or_create(Product, id=4101120006685, name="Padaborner Pilsner")
+        self.database.get_or_create(Product, id=40678092, name="Vitamalz")
+        self.database.get_or_create(Product, id=4260031875008, name="Rhabarbershorle")
+        self.database.get_or_create(Product, id=4015533019562, name="BioZisch Zitrone")
+        self.database.get_or_create(Product, id=4015533014956, name="BioZisch Natur Orange")
+        self.database.get_or_create(Product, id=4260189210034, name="Wostock Dattel Granatapfel")
+        self.database.get_or_create(Product, id=4260189210072, name="Wostock Birne Rosmarin")
+        self.database.get_or_create(Product, id=4260107220022, name="Fritz Kola zuckerfrei")
+        self.database.get_or_create(Product, id=4260107220060, name="Fritz Limo Melone")
+        self.database.get_or_create(Product, id=4260107220299, name="Fritz Limo Apfel-Kirsch-Holunder")
+        self.database.get_or_create(Product, id=4260107220114, name="Fritz Limo Orange")
+        self.database.get_or_create(Product, id=4014472002512, name="Bionade Holunder")
 
     def start(self):
         logging.info("Welcome to foobarpay")
