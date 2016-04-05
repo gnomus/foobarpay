@@ -17,12 +17,12 @@ class TokenGenerator(object):
 
     def make_barcode(self):
         while True:
-            id = randrange(999999999)
+            id = randrange(9000000000, 9999999999)
             if not self.db.get(Customer, id=id):
                 self.db.get_or_create(Customer, id=id)
                 self.db.commit()
                 break
-        ean = EAN13("{}{}".format(Logic.USER_ID_PREFIX, str(id).zfill(9)))
+        ean = EAN13("{}{}".format(Logic.USER_ID_PREFIX, str(id).zfill(10)))
         f = BytesIO()
         ean.write(f, {'write_text': False})
         return base64.encodestring(f.getvalue()).decode('utf-8')
