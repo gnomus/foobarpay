@@ -16,7 +16,7 @@ class Customer(Base):
 
     @property
     def name(self):
-        return self._name or str(self.id)
+        return self._name or (str(self.id)[:-5] + "x" * 5)
 
     @name.setter
     def name(self, value):
