@@ -10,6 +10,7 @@ from time import time
 from foobarpay.model.customer import Customer
 from foobarpay.logic import Logic
 
+
 class TokenGenerator(object):
 
     def __init__(self, db):

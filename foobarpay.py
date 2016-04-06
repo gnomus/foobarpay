@@ -3,7 +3,6 @@
 import logging
 from sys import exit
 from signal import signal, SIGINT
-from sqlalchemy import create_engine
 from argparse import ArgumentParser
 
 from foobarpay.db import Database
@@ -13,9 +12,10 @@ from foobarpay.logic import Logic
 from foobarpay.model.product import Product
 from foobarpay.tokens import TokenGenerator
 
+
 class FooBarPay:
-    DEFAULT_SCANNER  = '/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd'
-    DEFAULT_DISPLAY  = '/dev/hidraw1'
+    DEFAULT_SCANNER = '/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd'
+    DEFAULT_DISPLAY = '/dev/hidraw1'
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
     ALLOW_CUSTOMER_CREATION = False
 

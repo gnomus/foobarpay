@@ -1,5 +1,5 @@
-from enum import Enum
 from evdev import InputDevice, ecodes
+
 
 class EvdevScanner(object):
     def __init__(self, device):

@@ -36,6 +36,7 @@ class HIDrawDisplay(object):
         self.device.write(message)
         self.device.flush()
 
+
 class FifoDisplay(HIDrawDisplay):
     def set_position(self, pos_x, pos_y):
         self.__send_command__(b"\n" + b" " * pos_x)

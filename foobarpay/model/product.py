@@ -2,6 +2,7 @@ from foobarpay.db import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
+
 class Product(Base):
     __tablename__ = 'product'
     id = Column(Integer, primary_key=True)
