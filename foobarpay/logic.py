@@ -20,8 +20,9 @@ class Logic(object):
         self.allow_customer_creation = allow_customer_creation
         self.reset()
 
-    def reset(self):
+    def reset(self, sleep_duration=0):
         logging.debug("Resetting logic")
+        sleep(sleep_duration)
         self.state = self.State.Idle
         self.cart = 0
         self.customer = None
@@ -36,6 +37,7 @@ class Logic(object):
             if self.customer is None:
                 logging.warn("Unknown customer id: {}".format(customer_id))
                 self.display.show_two_messages("Error", "Unknown id")
+                self.reset(3)
                 return
         logging.debug("Name: {}".format(self.customer.name))
         logging.debug("Saldo: {}".format(self.customer.saldo))
@@ -50,8 +52,7 @@ class Logic(object):
         self.customer.modify_saldo(self.cart)
         self.database.commit()
         self.display.show_two_messages("Transaction", "completed")
-        sleep(3)
-        self.reset()
+        self.reset(3)
 
     def handle_scanned_text(self, scanned_text):
         try:
