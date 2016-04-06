@@ -17,6 +17,7 @@ class FooBarPay:
     DEFAULT_SCANNER  = '/dev/input/by-id/usb-©_Symbol_Technologies__Inc__2000_Symbol_Bar_Code_Scanner_S_N:ac08a7010000_Rev:NBRXUAAQ3-event-kbd'
     DEFAULT_DISPLAY  = '/dev/hidraw1'
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
+    ALLOW_CUSTOMER_CREATION = False
 
     def __init__(self, cli_arguments):
         logging.basicConfig(level=logging.DEBUG if cli_arguments.debug else logging.INFO)
@@ -31,7 +32,7 @@ class FooBarPay:
         else:
             self.scanner = EvdevScanner(cli_arguments.scanner)
         self.initialize_products()
-        self.logic = Logic(self.display, self.database)
+        self.logic = Logic(self.display, self.database, allow_customer_creation=self.ALLOW_CUSTOMER_CREATION)
 
     def initialize_products(self):
         self.database.get_or_create(Product, id=4100060009503, name="Extaler Mineralquell", price=100)

@@ -13,9 +13,10 @@ class Logic(object):
     USER_ID_PREFIX = '999'
     LOAD_PREFIX = '980'
 
-    def __init__(self, display, database):
+    def __init__(self, display, database, allow_customer_creation=True):
         self.display = display
         self.database = database
+        self.allow_customer_creation = allow_customer_creation
         self.reset()
 
     def reset(self):
@@ -27,7 +28,14 @@ class Logic(object):
 
     def transaction_start(self, customer_id):
         logging.info("Starting transaction")
-        self.customer = self.database.get_or_create(Customer, id=customer_id)
+        if self.allow_customer_creation:
+            self.customer = self.database.get_or_create(Customer, id=customer_id)
+        else:
+            self.customer = self.database.get(Customer, id=customer_id)
+            if self.customer is None:
+                logging.warn("Unknown customer id: {}".format(customer_id))
+                self.display.show_two_messages("Error", "Unknown id")
+                return
         logging.debug("Name: {}".format(self.customer.name))
         logging.debug("Saldo: {}".format(self.customer.saldo))
         self.display.show_two_messages("Hello {}".format(self.customer.name), "S: {:+.2f}".format(self.customer.saldo/100))
