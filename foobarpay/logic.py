@@ -57,6 +57,8 @@ class Logic(object):
     def handle_scanned_text(self, scanned_text):
         try:
             if scanned_text.startswith(self.USER_ID_PREFIX):
+                # TODO: add proper checksum
+                scanned_text = scanned_text[:-1]
                 customer_id = int(scanned_text[len(self.USER_ID_PREFIX):])
                 if self.state == self.State.Idle:
                     self.transaction_start(customer_id)
