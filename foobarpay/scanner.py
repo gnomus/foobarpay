@@ -50,17 +50,18 @@ class EvdevScanner(object):
         self.device.grab()
 
     def read(self):
-        for event in self.device.read_one():
-            if not event:
-                return None
-            if event.type != ecodes.EV_KEY or event.value != 1:
-                return None
-            scanned_input = self.scancodes.get(event.code)
-            if scanned_input == "\n":
-                line = self.buffer
-                self.buffer = ""
-                return line
-            self.buffer += scanned_input or ""
+        try:
+            for event in self.device.read():
+                if event.type != ecodes.EV_KEY or event.value != 1:
+                    return None
+                scanned_input = self.scancodes.get(event.code)
+                if scanned_input == "\n":
+                    line = self.buffer
+                    self.buffer = ""
+                    return line
+                self.buffer += scanned_input or ""
+        except BlockingIOError:
+            return None
 
 
 class FifoScanner(object):
