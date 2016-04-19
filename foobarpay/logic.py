@@ -13,12 +13,12 @@ class Logic(object):
 
     USER_ID_PREFIX = '999'
     LOAD_PREFIX = '980'
-    IDLE_TIMEOUT = 10
 
-    def __init__(self, display, database, allow_customer_creation=True):
+    def __init__(self, display, database, allow_customer_creation=True, idle_timeout=10):
         self.display = display
         self.database = database
         self.allow_customer_creation = allow_customer_creation
+        self.idle_timeout = idle_timeout
         self.last_action = 0
         self.reset()
 
@@ -110,7 +110,7 @@ class Logic(object):
     """ Returns True if the logic has a running transaction or does anything else """
     def tick(self):
         # timeout not yet expired
-        if self.last_action + self.IDLE_TIMEOUT > time():
+        if self.last_action + self.idle_timeout > time():
             return True
         # reset state after timeout
         if self.state != self.State.Idle:

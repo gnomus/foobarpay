@@ -20,6 +20,7 @@ class FooBarPay:
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
     ALLOW_CUSTOMER_CREATION = False
     INPUT_BLOCK_TIME = 0.5
+    IDLE_TIMEOUT = 10
 
     def __init__(self, cli_arguments):
         logging.basicConfig(level=logging.DEBUG if cli_arguments.debug else logging.INFO)
@@ -34,7 +35,9 @@ class FooBarPay:
         else:
             self.scanner = EvdevScanner(cli_arguments.scanner)
         self.initialize_products()
-        self.logic = Logic(self.display, self.database, allow_customer_creation=self.ALLOW_CUSTOMER_CREATION)
+        self.logic = Logic(self.display, self.database,
+                           allow_customer_creation=self.ALLOW_CUSTOMER_CREATION,
+                           idle_timeout=self.IDLE_TIMEOUT)
 
     def initialize_products(self):
         self.database.get_or_create(Product, id=4100060009503, name="Extaler Mineralquell", price=100)
