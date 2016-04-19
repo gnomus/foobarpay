@@ -9,15 +9,17 @@ class HIDrawDisplay(object):
     def show_raw_message(self, message):
         self.__send_command__(str.encode(message))
 
-    def show_welcome(self):
-        self.clear()
+    def show_welcome(self, clear=True):
+        if clear:
+            self.clear()
         self.set_position(6, 1)
         self.show_raw_message("Welcome to")
         self.set_position(6, 2)
         self.show_raw_message("foobarpay!")
 
-    def show_message(self, message):
-        self.clear()
+    def show_message(self, message, clear=True):
+        if clear:
+            self.clear()
         self.set_position(1, 1)
         self.show_raw_message(message)
 
