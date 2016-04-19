@@ -31,7 +31,7 @@ class PacmanScreensaver(object):
         self.line_index = 0
         self.lines = [self.generate_line(init_pacman=True), self.generate_line()]
 
-    def generate_line(self, width=24, init_pacman=False):
+    def generate_line(self, width=20, init_pacman=False):
         line = list(" " * width)
         for i in range(1, width, 3):
             line[i] = 'o'
