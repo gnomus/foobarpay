@@ -1,21 +1,50 @@
 from time import sleep
+from random import randint
 
 
 class Screensaver(object):
     def __init__(self, display, tick_time):
         self.display = display
-        self.screensavers = [PacmanScreensaver(display, tick_time)]
-        self.active_screensaver = self.screensavers[0]
+        self.screensavers = [
+            WelcomeScreensaver(display, tick_time),
+            PacmanScreensaver(display, tick_time)
+        ]
+        self.active_screensaver = 1
 
     def get_active_screensaver(self):
-        return self.screensavers[self.active_screensaver].reset()
+        return self.screensavers[self.active_screensaver]
 
     def reset(self):
-        self.active_screensaver.reset()
+        self.get_active_screensaver().reset()
 
     def tick(self):
-        if not self.active_screensaver.tick():
-            self.active_screensaver.reset()
+        screensaver = self.get_active_screensaver()
+        if screensaver.tick():
+            return
+        screensaver.reset()
+        if self.active_screensaver > 0:
+            self.active_screensaver = 0
+        else:
+            self.active_screensaver = randint(1, len(self.screensavers) - 1)
+
+
+class WelcomeScreensaver(object):
+    def __init__(self, display, tick_time):
+        self.display = display
+        self.sleep_duration = 0.5
+        self.duration = 20 / self.sleep_duration
+        self.tick_time = tick_time
+        self.reset()
+
+    def reset(self):
+        self.display.clear()
+        self.current_tick = 0
+
+    def tick(self):
+        self.display.show_welcome(clear=False)
+        self.current_tick += 1
+        sleep(self.sleep_duration - self.tick_time)
+        return self.current_tick <= self.duration
 
 
 class PacmanScreensaver(object):
