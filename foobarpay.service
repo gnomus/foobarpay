@@ -1,0 +1,13 @@
+[Unit]
+Description=Foobarpay
+After=network.target
+
+[Service]
+Type=simple
+User=user
+Group=user
+WorkingDirectory=/home/user/foobarpay
+ExecStart=/home/user/foobarpay/start
+
+[Install]
+WantedBy=multi-user.target
