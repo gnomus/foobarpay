@@ -12,6 +12,7 @@ from foobarpay.scanner import EvdevScanner, FifoScanner
 from foobarpay.logic import Logic
 from foobarpay.model.product import Product
 from foobarpay.tokens import TokenGenerator
+from foobarpay.screensaver import Screensaver
 
 
 class FooBarPay:
@@ -19,7 +20,7 @@ class FooBarPay:
     DEFAULT_DISPLAY = '/dev/hidraw1'
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
     ALLOW_CUSTOMER_CREATION = False
-    INPUT_BLOCK_TIME = 0.5
+    TICK_TIME = 0.1
     IDLE_TIMEOUT = 10
 
     def __init__(self, cli_arguments):
@@ -38,6 +39,7 @@ class FooBarPay:
         self.logic = Logic(self.display, self.database,
                            allow_customer_creation=self.ALLOW_CUSTOMER_CREATION,
                            idle_timeout=self.IDLE_TIMEOUT)
+        self.screensaver = Screensaver(self.display, self.TICK_TIME)
 
     def initialize_products(self):
         self.database.get_or_create(Product, id=4100060009503, name="Extaler Mineralquell", price=100)
@@ -63,12 +65,15 @@ class FooBarPay:
         logging.info("Welcome to foobarpay")
         signal(SIGINT, lambda s, f: exit(0))
         while True:
-            sleep(self.INPUT_BLOCK_TIME)
+            sleep(self.TICK_TIME)
             line = self.scanner.read()
             if line:
                 self.logic.handle_scanned_text(line)
+                self.screensaver.reset()
                 continue
-            self.logic.tick()
+            if self.logic.tick():
+                continue
+            self.screensaver.tick()
 
 if __name__ == "__main__":
     parser = ArgumentParser()
