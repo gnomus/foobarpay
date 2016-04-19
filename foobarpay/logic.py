@@ -2,7 +2,7 @@ from foobarpay.model.customer import Customer
 from foobarpay.model.product import Product
 
 import logging
-from time import sleep
+from time import sleep, time
 from enum import Enum
 
 
@@ -18,12 +18,14 @@ class Logic(object):
         self.display = display
         self.database = database
         self.allow_customer_creation = allow_customer_creation
+        self.last_action = 0
         self.reset()
 
     def reset(self, sleep_duration=0):
         logging.debug("Resetting logic")
         sleep(sleep_duration)
         self.state = self.State.Idle
+        self.last_action = time()
         self.cart = 0
         self.customer = None
         self.display.show_welcome()
@@ -56,6 +58,7 @@ class Logic(object):
 
     def handle_scanned_text(self, scanned_text):
         try:
+            self.last_action = time()
             if scanned_text.startswith(self.USER_ID_PREFIX):
                 # TODO: add proper checksum
                 scanned_text = scanned_text[:-1]
@@ -102,3 +105,8 @@ class Logic(object):
                         )
         except ValueError:
             pass
+
+    def tick(self):
+        # TODO: check last_action and reset() with message
+        pass
+

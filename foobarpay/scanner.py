@@ -1,9 +1,12 @@
 from evdev import InputDevice, ecodes
+from fcntl import fcntl, F_SETFL, F_GETFL
+from os import O_NONBLOCK, read
 
 
 class EvdevScanner(object):
     def __init__(self, device):
         self.device = InputDevice(device)
+        self.buffer = ""
         self.scancodes = {
             2: u'1',
             3: u'2',
@@ -47,19 +50,32 @@ class EvdevScanner(object):
         self.device.grab()
 
     def read(self):
-        input_buffer = ""
         for event in self.device.read_loop():
-            if event.type == ecodes.EV_KEY and event.value == 1:
-                if event.code == 28:
-                    break
-                else:
-                    input_buffer += self.scancodes.get(event.code) or ""
-        return input_buffer
+            if event.type != ecodes.EV_KEY or event.value != 1:
+                return None
+            scanned_input = self.scancodes.get(event.code)
+            if scanned_input == "\n":
+                line = self.buffer
+                self.buffer = ""
+                return line
+            self.buffer += scanned_input or ""
 
 
 class FifoScanner(object):
     def __init__(self, device):
         self.fifo = open(device, 'r')
+        self.fd = self.fifo.fileno()
+        self.buffer = ""
+        fcntl(self.fd, F_SETFL, fcntl(self.fd, F_GETFL) | O_NONBLOCK)
 
     def read(self):
-        return self.fifo.readline()[:-1]
+        try:
+            block = read(self.fd, 1024)
+            self.buffer += block.decode()
+            if not self.buffer.endswith("\n"):
+                return None
+            line = self.buffer[:-1]
+            self.buffer = ""
+            return line
+        except BlockingIOError:
+            return None

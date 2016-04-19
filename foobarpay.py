@@ -4,6 +4,7 @@ import logging
 from sys import exit
 from signal import signal, SIGINT
 from argparse import ArgumentParser
+from time import sleep
 
 from foobarpay.db import Database
 from foobarpay.display import HIDrawDisplay, FifoDisplay
@@ -18,6 +19,7 @@ class FooBarPay:
     DEFAULT_DISPLAY = '/dev/hidraw1'
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
     ALLOW_CUSTOMER_CREATION = False
+    INPUT_BLOCK_TIME = 0.5
 
     def __init__(self, cli_arguments):
         logging.basicConfig(level=logging.DEBUG if cli_arguments.debug else logging.INFO)
@@ -58,7 +60,12 @@ class FooBarPay:
         logging.info("Welcome to foobarpay")
         signal(SIGINT, lambda s, f: exit(0))
         while True:
-            self.logic.handle_scanned_text(self.scanner.read())
+            sleep(self.INPUT_BLOCK_TIME)
+            line = self.scanner.read()
+            if line:
+                self.logic.handle_scanned_text(line)
+                continue
+            self.logic.tick()
 
 if __name__ == "__main__":
     parser = ArgumentParser()
