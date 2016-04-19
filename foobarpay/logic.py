@@ -58,7 +58,6 @@ class Logic(object):
 
     def handle_scanned_text(self, scanned_text):
         try:
-            self.last_action = time()
             if scanned_text.startswith(self.USER_ID_PREFIX):
                 # TODO: add proper checksum
                 scanned_text = scanned_text[:-1]
@@ -105,6 +104,7 @@ class Logic(object):
                         )
         except ValueError:
             pass
+        self.last_action = time()
 
     def tick(self):
         # TODO: check last_action and reset() with message
