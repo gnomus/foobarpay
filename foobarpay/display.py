@@ -21,8 +21,9 @@ class HIDrawDisplay(object):
         self.set_position(1, 1)
         self.show_raw_message(message)
 
-    def show_two_messages(self, message1, message2):
-        self.clear()
+    def show_two_messages(self, message1, message2, clear=True):
+        if clear:
+            self.clear()
         self.set_position(1, 1)
         self.show_raw_message(message1)
         self.set_position(1, 2)

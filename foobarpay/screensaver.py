@@ -40,7 +40,7 @@ class PacmanScreensaver(object):
         return "".join(line)
 
     def show(self):
-        self.display.show_two_messages(self.lines[0], self.lines[1])
+        self.display.show_two_messages(self.lines[0], self.lines[1], False)
         sleep(0.5 - self.tick_time)
 
     """ Returns True while active and False when finished """
