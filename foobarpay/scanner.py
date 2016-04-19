@@ -53,13 +53,14 @@ class EvdevScanner(object):
         try:
             for event in self.device.read():
                 if event.type != ecodes.EV_KEY or event.value != 1:
-                    return None
+                    continue
                 scanned_input = self.scancodes.get(event.code)
                 if scanned_input == "\n":
                     line = self.buffer
                     self.buffer = ""
                     return line
                 self.buffer += scanned_input or ""
+            return None
         except BlockingIOError:
             return None
 
