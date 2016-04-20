@@ -7,7 +7,8 @@ class Screensaver(object):
         self.display = display
         self.screensavers = [
             WelcomeScreensaver(display, tick_time),
-            PacmanScreensaver(display, tick_time)
+            PacmanScreensaver(display, tick_time),
+            SpaceshipScreensaver(display, tick_time)
         ]
         self.active_screensaver = 1
 
@@ -32,7 +33,7 @@ class WelcomeScreensaver(object):
     def __init__(self, display, tick_time):
         self.display = display
         self.sleep_duration = 0.5
-        self.duration = 20 / self.sleep_duration
+        self.duration = 30 / self.sleep_duration
         self.tick_time = tick_time
         self.reset()
 
@@ -99,5 +100,69 @@ class PacmanScreensaver(object):
         # assign pacman char and show on display
         line[self.pacman_position] = self.pacman[self.pacman_index]
         self.lines[self.line_index] = "".join(line)
+        self.show()
+        return True
+
+
+class SpaceshipScreensaver(object):
+    def __init__(self, display, tick_time):
+        self.spaceship = '>'
+        self.bullet = '-'
+        self.display = display
+        self.tick_time = tick_time
+        self.sleep_duration = 0.3
+        self.duration = 30 / self.sleep_duration
+        self.reset()
+
+    def reset(self):
+        self.spaceship_position = (0, 0)
+        self.clear_lines()
+        self.bullets = []
+        self.current_tick = 0
+
+    def clear_lines(self):
+        self.lines = [" " * 20, " " * 20]
+        line = list(self.lines[self.spaceship_position[1]])
+        line[self.spaceship_position[0]] = self.spaceship
+        self.lines[self.spaceship_position[1]] = "".join(line)
+
+    def show(self):
+        self.display.show_two_messages(self.lines[0], self.lines[1], False)
+        sleep(self.sleep_duration - self.tick_time)
+
+    def move_bullets(self):
+        new_bullets = []
+        for x, y in self.bullets:
+            if x + 1 < 20:
+                new_bullets.append((x + 1, y))
+        self.bullets = new_bullets
+
+    def draw_bullets(self):
+        lines = [list(self.lines[0]), list(self.lines[1])]
+        for x, y in self.bullets:
+            lines[y][x] = self.bullet
+        self.lines = ["".join(lines[0]), "".join(lines[1])]
+
+    def move_spaceship(self):
+        if 0 != self.current_tick % 4:
+            return
+        self.spaceship_position = (self.spaceship_position[0], randint(0, 1))
+
+    def shoot(self):
+        if 0 != self.current_tick % 4:
+            return
+        if 0 != randint(0, 2) and len(self.bullets) >= 2:
+            return
+        self.bullets.append((1, self.spaceship_position[1]))
+
+    def tick(self):
+        if self.current_tick > self.duration:
+            return False
+        self.current_tick += 1
+        self.move_spaceship()
+        self.move_bullets()
+        self.shoot()
+        self.clear_lines()
+        self.draw_bullets()
         self.show()
         return True
