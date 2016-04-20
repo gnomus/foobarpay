@@ -151,7 +151,7 @@ class SpaceshipScreensaver(object):
     def shoot(self):
         if 0 != self.current_tick % 4:
             return
-        if 0 != randint(0, 2) and len(self.bullets) >= 2:
+        if 0 != randint(0, 1) and len(self.bullets) >= 2:
             return
         self.bullets.append((1, self.spaceship_position[1]))
 
