@@ -69,7 +69,6 @@ class FooBarPay:
             line = self.scanner.read()
             if line:
                 self.logic.handle_scanned_text(line)
-                self.screensaver.reset()
                 continue
             if self.logic.tick():
                 continue
