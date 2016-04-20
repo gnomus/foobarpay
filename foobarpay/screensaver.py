@@ -27,6 +27,7 @@ class Screensaver(object):
             self.active_screensaver = 0
         else:
             self.active_screensaver = randint(1, len(self.screensavers) - 1)
+        self.get_active_screensaver().reset()
 
 
 class WelcomeScreensaver(object):
