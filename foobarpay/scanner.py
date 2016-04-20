@@ -1,12 +1,15 @@
 from evdev import InputDevice, ecodes
 from fcntl import fcntl, F_SETFL, F_GETFL
 from os import O_NONBLOCK, read
+from threading import Thread
+from collections import deque
 
 
 class EvdevScanner(object):
     def __init__(self, device):
         self.device = InputDevice(device)
         self.buffer = ""
+        self.lines = deque()
         self.scancodes = {
             2: u'1',
             3: u'2',
@@ -48,21 +51,26 @@ class EvdevScanner(object):
             12: u'-'
         }
         self.device.grab()
+        self.thread = Thread(target=self.loop, daemon=True)
+        self.thread.start()
+
+    def loop(self):
+        for event in self.device.read_loop():
+            if event.type != ecodes.EV_KEY or event.value != 1:
+                continue
+            scanned_input = self.scancodes.get(event.code)
+            if scanned_input == "\n":
+                line = self.buffer
+                self.buffer = ""
+                self.lines.append(line)
+                continue
+            self.buffer += scanned_input or ""
 
     def read(self):
-        try:
-            for event in self.device.read():
-                if event.type != ecodes.EV_KEY or event.value != 1:
-                    continue
-                scanned_input = self.scancodes.get(event.code)
-                if scanned_input == "\n":
-                    line = self.buffer
-                    self.buffer = ""
-                    return line
-                self.buffer += scanned_input or ""
+        if len(self.lines) <= 0:
             return None
-        except BlockingIOError:
-            return None
+        line = self.lines.popleft()
+        return line
 
 
 class FifoScanner(object):
