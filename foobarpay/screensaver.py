@@ -199,7 +199,9 @@ class SpaceshipScreensaver(object):
             return
         self.bullets.append((self.spaceship_position[0] + 1, self.spaceship_position[1]))
 
-    def spawn_enemy(self, distribution=2, max_enemies=2):
+    def spawn_enemy(self, distribution=2, max_enemies=3):
+        if self.state == self.State.Intro and self.current_tick < 8:
+            return
         if 0 != self.current_tick % 4:
             return
         if len(self.enemies) >= max_enemies:
