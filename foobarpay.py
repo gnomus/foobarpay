@@ -21,7 +21,7 @@ class FooBarPay:
     DEFAULT_DATABASE = 'sqlite:///foobarpay.sqlite'
     ALLOW_CUSTOMER_CREATION = False
     TICK_TIME = 0.1
-    IDLE_TIMEOUT = 10
+    IDLE_TIMEOUT = 20
 
     def __init__(self, cli_arguments):
         logging.basicConfig(level=logging.DEBUG if cli_arguments.debug else logging.INFO)
