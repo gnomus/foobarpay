@@ -1,5 +1,6 @@
 from time import sleep
 from random import randint
+from enum import Enum
 
 
 class Screensaver(object):
@@ -106,28 +107,65 @@ class PacmanScreensaver(object):
 
 
 class SpaceshipScreensaver(object):
+    class State(Enum):
+        Intro = 0
+        Main = 1
+        Outro = 2
+        GameOver = 3
+
     def __init__(self, display, tick_time):
         self.spaceship = '>'
+        self.enemy = '<'
         self.bullet = '-'
+        self.explosion = '*'
         self.display = display
         self.tick_time = tick_time
         self.sleep_duration = 0.3
         self.duration = 30 / self.sleep_duration
+        self.game_over_duration = 5 / self.sleep_duration
         self.reset()
 
     def reset(self):
-        self.spaceship_position = (0, 0)
+        self.spaceship_position = (19, 0)
         self.clear_lines()
         self.bullets = []
+        self.enemies = []
+        self.explosions = []
         self.current_tick = 0
+        self.state = self.State.Intro
 
     def clear_lines(self):
         self.lines = [" " * 20, " " * 20]
-        line = list(self.lines[self.spaceship_position[1]])
-        line[self.spaceship_position[0]] = self.spaceship
-        self.lines[self.spaceship_position[1]] = "".join(line)
 
     def show(self):
+        self.clear_lines()
+        lines = [list(self.lines[0]), list(self.lines[1])]
+
+        # render bullets
+        for x, y in self.bullets:
+            if x >= 19:
+                continue
+            lines[y][x] = self.bullet
+        # render enemies
+        for x, y in self.enemies:
+            if x >= 19:
+                continue
+            lines[y][x] = self.enemy
+        # render enemies
+        for x, y in self.explosions:
+            lines[y][x] = self.explosion
+
+        # if not game over, remove explosions and show spaceship
+        if self.state != self.State.GameOver:
+            self.explosions = []
+            lines[self.spaceship_position[1]][self.spaceship_position[0]] = self.spaceship
+        else:
+            text = list("Game Over")
+            for i in range(len(text)):
+                lines[0][5 + i] = text[i]
+
+        # display
+        self.lines = ["".join(lines[0]), "".join(lines[1])]
         self.display.show_two_messages(self.lines[0], self.lines[1], False)
         sleep(self.sleep_duration - self.tick_time)
 
@@ -138,32 +176,101 @@ class SpaceshipScreensaver(object):
                 new_bullets.append((x + 1, y))
         self.bullets = new_bullets
 
-    def draw_bullets(self):
-        lines = [list(self.lines[0]), list(self.lines[1])]
-        for x, y in self.bullets:
-            lines[y][x] = self.bullet
-        self.lines = ["".join(lines[0]), "".join(lines[1])]
+    def move_enemies(self, x_delta=-1):
+        new_enemies = []
+        for x, y in self.enemies:
+            if x > 0:
+                new_enemies.append((x + x_delta, y))
+        self.enemies = new_enemies
 
-    def move_spaceship(self):
+    def move_spaceship(self, x_delta=0):
+        if x_delta != 0:
+            self.spaceship_position = (self.spaceship_position[0] + x_delta,
+                                       self.spaceship_position[1])
+            return
         if 0 != self.current_tick % 4:
             return
         self.spaceship_position = (self.spaceship_position[0], randint(0, 1))
 
-    def shoot(self):
+    def shoot(self, distribution=4, min_bullets=2):
         if 0 != self.current_tick % 4:
             return
-        if 0 != randint(0, 1) and len(self.bullets) >= 2:
+        if 0 != randint(0, distribution - 1) and len(self.bullets) >= min_bullets:
             return
-        self.bullets.append((1, self.spaceship_position[1]))
+        self.bullets.append((self.spaceship_position[0] + 1, self.spaceship_position[1]))
+
+    def spawn_enemy(self, distribution=2, max_enemies=2):
+        if 0 != self.current_tick % 4:
+            return
+        if len(self.enemies) >= max_enemies:
+            return
+        if 0 != randint(0, distribution - 1):
+            return
+        self.enemies.append((19, randint(0, 1)))
+
+    def check_collision(self):
+        new_bullets = []
+        new_enemies = []
+        collided_enemies = []
+        for b_x, b_y in self.bullets:
+            bullet_collided = False
+            for e_x, e_y in self.enemies:
+                if b_x == e_x and b_y == e_y or \
+                   b_x - 1 == e_x and b_y == e_y:
+                    bullet_collided = True
+                    collided_enemies.append((e_x, e_y))
+                    self.explosions.append((e_x, e_y))
+                    break
+            if not bullet_collided:
+                new_bullets.append((b_x, b_y))
+        for e_x, e_y in self.enemies:
+            if (e_x, e_y) == self.spaceship_position:
+                self.explosions.append((e_x, e_y))
+                self.state = self.state.GameOver
+                self.current_tick = 0
+                continue
+            if (e_x, e_y) not in collided_enemies:
+                new_enemies.append((e_x, e_y))
+        self.bullets = new_bullets
+        self.enemies = new_enemies
+
+    def tick_state(self, x_delta_ship=0, x_delta_enemies=-1):
+        self.move_spaceship(x_delta_ship)
+        self.move_bullets()
+        self.move_enemies(x_delta_enemies)
+        self.spawn_enemy()
+        self.shoot()
+        self.check_collision()
+        self.show()
 
     def tick(self):
-        if self.current_tick > self.duration:
-            return False
         self.current_tick += 1
-        self.move_spaceship()
-        self.move_bullets()
-        self.shoot()
-        self.clear_lines()
-        self.draw_bullets()
-        self.show()
+        # game over
+        if self.state == self.State.GameOver:
+            self.show()
+            return self.current_tick <= self.game_over_duration
+        # into mode
+        if self.state == self.State.Intro:
+            # switch from intro to main
+            if self.spaceship_position[0] <= 0:
+                self.state = self.State.Main
+                self.current_tick = 0
+                return True
+            self.tick_state(-1, -1)
+            return True
+        # outro mode
+        if self.state == self.State.Outro:
+            # outro finished
+            if self.spaceship_position[0] >= 19:
+                return False
+            self.move_bullets()
+            self.tick_state(1, 1)
+            return True
+        # switch from main into outro mode
+        if self.current_tick > self.duration:
+            self.state = self.State.Outro
+            self.current_tick = 0
+            return True
+        # main mode
+        self.tick_state(0, -1)
         return True
