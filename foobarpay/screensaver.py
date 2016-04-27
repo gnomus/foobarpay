@@ -121,7 +121,7 @@ class SpaceshipScreensaver(object):
         self.display = display
         self.tick_time = tick_time
         self.sleep_duration = 0.3
-        self.duration = 30 / self.sleep_duration
+        self.duration = 40 / self.sleep_duration
         self.game_over_duration = 5 / self.sleep_duration
         self.reset()
 
